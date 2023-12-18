@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>axios</title>
+</head>
+
+<body>
+    <div id="vm">
+        <button type="button" @click="get">Get请求</button>
+        <button type="button" @click="getParam">Get请求带参数</button>
+        <button type="button" @click="post">Post请求带参数</button>
+        <button type="button" @click="post1">Post请求带参数</button>
+        <form>
+            <input type="text" value="" v-model="projectName" placeholder="请输入项目名称" />
+            <input type="file" v-on:change="getFile($event)" multiple />
+            <button v-on:click="submitForm($event)">上传</button>
+        </form>
+        <form>
+            <input type="text" value="" v-model="projectNames" placeholder="请输入项目名称" />
+            <input type="file" v-on:change="getFiles($event)" multiple />
+            <button v-on:click="submitForms($event)">上传</button>
+        </form>
+
+        <h3>{{msg}}</h3>
+    </div>
+    <script src="./vue.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./axios.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        var vm = new Vue({
+            el: "#vm",
+            data: {
+                msg: "",
+                projectName: "",
+                projectNames: "",
+                file: "",
+                files: ""
+            },
+            methods: {
+                get: function () { //get请求
+                    var that = this;
+                    axios.get("http://localhost:99/WeatherForecast").then(function (response) {
+                        console.log(response);
+                        //this.msg=JSON.stringify(response.data);  //错误this指向window
+                        vm.msg = JSON.stringify(response.data);
+                        that.msg = JSON.stringify(response.data);
+                    }).catch(function (error) {
+                        console.log(error);
+                    })
+                },
+                getParam: function () { //带参数的get
+                    axios.get("http://localhost:99/WeatherForecast/GetAb", {
+                        params: {
+                            a: 1,
+                            b: 1
+                        }
+                    }).then(function (response) {
+                        vm.msg = JSON.stringify(response.data);
+                        console.log(response);
+                    }).catch(function (error) {
+                        console.log(error);
+                    })
+                },
+                post: function () {
+
+
+
+
+
+
+                    axios({
+                        url: "http://localhost:99/WeatherForecast/PostAb",
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        params: {
+                            a: 1,
+                            b: 2
+                        }
+                    }).then((result) => {
+                        //   this.$message({
+                        //   message: '请求成功',
+                        //   type: 'success',
+                        //   showClose: true
+                        //   });
+                        vm.msg = result.data;
+                        console.log(response);
+                    }).catch((err) => {
+                        console.log(err);
+                        // this.$message({
+                        // message: '请求失败',
+                        //  type: 'error',
+                        //  showClose: true
+                        //   });
+                    })
+                    // axios.post("http://localhost:99/WeatherForecast/PostAb", {
+                    // params: {
+                    // a: 1,
+                    // b: 2
+                    // }
+                    // })
+                    // .then(function(response) {
+                    // vm.msg = response.data
+                    // console.log(response);
+                    // })
+                    // .catch(function(error) {
+                    // console.log(error);
+                    // });
+                },
+
+                post1: function () {
+                    var user = {
+                        'userName': "liyaozhong",
+                        'password': "123456"
+
+                    }
+
+
+                    axios({
+                        url: "http://localhost:99/WeatherForecast/PostUser",
+                        method: 'post',
+                        //TransformRequest: [function(data) {
+                        //    return JSON.stringify(data);
+                        //}],
+                        headers: {
+                            //'deviceCode': 'A95ZEF1-47B5-AC90BF3'
+                            'Content-type': 'application/json'
+                        },
+                        data: JSON.stringify(user)
+
+                    }).then((result) => {
+                        vm.msg = result.data;
+                        console.log(response);
+                    }).catch((err) => {
+                        console.log(err);
+                    })
+                },
+                getFile: function (event) {
+                    this.file = event.target.files[0];
+                    this.projectName = event.target.files[0].name;
+                    console.log(this.file);
+                },
+                submitForm: function (event) {
+                    event.preventDefault();
+                    let formData = new FormData();
+                    formData.append("file", this.file);
+                    let config = {
+                        headers: {
+                            "Content-Type": "multipart/form-data"
+                        }
+                    };
+                    axios.post("http://10.10.105.39:99/WeatherForecast/upload", formData, config)
+                        .then(function (response) {
+                            if (response.status === 200) {
+                                console.log(response.data);
+                            }
+                        });
+                },
+                getFiles: function (event) {
+                    this.files = event.target.files;
+                    this.files = Array.from(this.files); // files是类数组，需要先转为数组
+                    var array = [];
+                    this.files.forEach((file) => {
+                        array.push(file.name);
+                    });
+                    this.projectNames = array.toString();
+                },
+                submitForms: function (event) {
+                    event.preventDefault();
+                    let formData = new FormData();
+                    this.files.forEach((file) => {
+                        formData.append("files", file);
+                    });
+                    let config = {
+                        headers: {
+                            "Content-Type": "multipart/form-data"
+                        }
+                    };
+                    axios.post("http://10.10.105.39:99/WeatherForecast/uploads", formData, config)
+                        .then(function (response) {
+                            if (response.status === 200) {
+                                console.log(response.data);
+                            }
+                        });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>axios</title>
+</head>
+
+<body>
+    <div id="vm">
+        <button type="button" @click="get">Get请求</button>
+        <button type="button" @click="getParam">Get请求带参数</button>
+        <h3>{{msg}}</h3>
+    </div>
+    <script src="./vue.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./axios.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        var vm = new Vue({
+            el: "#vm",
+            data: {
+                msg: ""
+            },
+            methods: {
+                get: function() {
+                    var that = this;
+                    axios.get("http://localhost:99/mvc08/emps").then(function(response) {
+                        console.log(response);
+                        //this.msg=JSON.stringify(response.data);  //错误this指向window
+                        vm.msg = JSON.stringify(response.data);
+                        that.msg = JSON.stringify(response.data);
+                    }).catch(function(error) {
+                        console.log(error);
+                    })
+                },
+                getParam: function() {
+                    axios.get("http://localhost:8080/mvc08/emps/getEmpById", {
+                        params: {
+                            id: 1
+                        }
+                    }).then(function(response) {
+                        vm.msg = JSON.stringify(response.data);
+                    }).catch(function(error) {
+                        console.log(error);
+                    })
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
